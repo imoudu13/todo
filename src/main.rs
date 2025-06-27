@@ -6,6 +6,8 @@ use std::io;
 use utils::menu_options::list_options;
 use task_manager::tasks::add_task_info;
 use task_manager::tasks::print_tasks;
+use task_manager::tasks::delete_task_from_table;
+use task_manager::tasks::complete_task;
 
 #[tokio::main]
 async fn main() {
@@ -30,10 +32,14 @@ async fn main() {
                 add_task_info().await;
             },
             "2" => {
-                print_tasks().await;
+                print_tasks(true).await;
             },
-            "3" => println!("We're removing a task eh."),
-            "4" => println!("We're marking a task as done eh."),
+            "3" => { 
+                delete_task_from_table().await;
+            },
+            "4" => {
+                complete_task().await;
+            },
             _ => println!("Not a valid input"),
         }
     }

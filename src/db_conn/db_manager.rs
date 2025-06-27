@@ -42,3 +42,45 @@ pub async fn list_tasks() -> Result<Vec<Row>, Error> {
         }
     }
 }
+
+pub async fn remove_task(id: i32) -> Result<i32, Error> {
+    match get_client().await {
+        Ok(client) => {
+            client.execute("DELETE FROM tasks_todo WHERE id = $1;", &[&id]).await?;
+            Ok(id)
+        },
+        Err(e) => {
+            eprintln!("error getting client: {}", e);
+            Err(e)
+        }
+    }
+}
+
+pub async fn mark_done(id: i32) -> Result<i32, Error> {
+    match get_client().await {
+        Ok(client) => {
+            let rows = client
+                .query("SELECT title, description FROM tasks_todo WHERE id = $1;", &[&id])
+                .await?;
+
+            if rows.is_empty() {
+                eprintln!("No task found with id {}", id);
+                return Ok(0)
+            }
+
+            client.query("DELETE FROM tasks_todo WHERE id = $1;", &[&id]).await?;
+
+            let title: &str = rows[0].get(0);
+            let description: &str = rows[0].get(1);
+            client.execute(
+                "INSERT INTO tasks_complete (title, description) VALUES ($1, $2);",
+                &[&title, &description]).await?;
+
+            Ok(id)
+        },
+        Err(e) => {
+            eprintln!("error getting client: {}", e);
+            Err(e)
+        }
+    }
+}
