@@ -1,10 +1,13 @@
 mod utils;
 mod task_manager;
+mod db_conn;
 
 use std::io;
 use utils::menu_options::list_options;
+use task_manager::tasks::get_task_info;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let mut choice: String = String::new();
     
     loop {
@@ -22,7 +25,9 @@ fn main() {
         }
         
         match trimmed {
-            "1" => println!("We're adding a task eh."),
+            "1" => {
+                get_task_info().await;
+            },
             "2" => println!("We're listing tasks eh."),
             "3" => println!("We're removing a task eh."),
             "4" => println!("We're marking a task as done eh."),
